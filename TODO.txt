@@ -1,0 +1,19 @@
+1. using cross validation + bagging
+2. try out dimension reduction
+	- PCA
+	- CCA, ACA, BCA, KCA, ZCA,....
+3. neural networks
+
+
+[x,d] = reduce(X)
+
+[models,losses]=crossSVM(X,Y) 10models
+Y = bagSVM(models, X)
+
+
+% multiclass
+models = trainSVM(X,Y)
+Y = testSVM(models,X)
+
+
+11.5 34%
