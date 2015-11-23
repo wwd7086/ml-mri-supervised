@@ -50,3 +50,5 @@ Keep the backup separate from the downloaded files such that you can revert to t
 5) `make`
 
 6) The `.mexmaci64` and `.mexw64` files for `libsvmread`, `libsvmwrite`, `svmtrain`, and `svmpredict` should be created.
+
+7) Add libsvm-3.20/matlab/ to your path using the 'Set Path' button under the 'Home' tab on your Matlab GUI.
