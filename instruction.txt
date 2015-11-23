@@ -1,0 +1,94 @@
+UPDATED:
+
+You should be able to load the data into Matlab or Octave with "load Train" or "load Test".  (There are also mat-file loaders for SciPy and other tools/environments.)  You'll see seven variables when you load Train.mat:
+ 
+Xtrain, Ytrain, subjectsTrain, eventsTrain, x, y z
+ 
+The Test.mat file has three variables: Xtest, subjectsTest, eventsTest. (Clearly, Ytest is not released.) The variables x,y and z are the same for training and testing data, so these are not included again in Test.mat.  Here are the explanations of the variables:
+
+Xtrain/Xtest: Each row of Xtrain/Xtest is an example: 5903 voxels taken from a single fMRI scan. The task the subjects are doing is to press a button when a moving bar reaches a line, but not to press the button if they get an early or late stop signal.  The fMRI scan is taken approximately 6 seconds after the time the button would have been pressed, to account for the delay between neural activity and the BOLD signal that the fMRI measures. The scans were processed as discussed in class: e.g., warping to a common brain shape and selecting voxels from brain regions that are anticipated to be relevant. 
+
+Ytrain: Each element of Ytrain is either 0, 1 or 3 corresponding to the following class labels: 
+    0) No Event.
+    1) Early Stop: Successful stop to an early stop signal.
+    3) Correct Go: Correct button press (within ~500ms) on a trial with no stop signal.
+ 
+subjectsTrain/subjectsTest: Each element of subjectsTrain/subjectsTest is the subject id of the person whose scan is recorded.  (One might expect slight differences in the responses of different subjects, so this information is provided in case you want to model these differences.)
+
+eventsTrain/eventsTest: Each element of eventsTrain/eventsTest is the time at which the scan was recorded.  The scanner is known to behave differently depending on how long it has been recording (due to temperature changes in its magnet), and subjects might also respond differently depending on how long they have been in the scanner.  Time is divided into two scanning runs: times 1:351 are one scanning run, and times 352:702 are another.
+
+x, y, z: These are 5903 x 1 vectors where each element corresponds to the x, y and z location of a voxel in the brain.  This information could help in case there is spatial locality for which voxels are relevant, and it also can help you visualize the fMRI scans.
+ 
+Your task for project part 1 is to build the best possible classifier to predict Y (label) from all of the remaining information (X (brain scan), subject id, event time and voxel locations).  We'll evaluate your classifier against held-out data.  Your score will depend on your classifier's accuracy: anything over a threshold will get a base amount of credit, and then accuracies above the threshold will gain additional credit.  You may feel free to use any tools you like: existing libraries or ones you implement yourself, or anything in between.
+ 
+As a hint, you will get decent performance with a support vector machine using the following parameters:
+From the inputs, use only X (the voxel array) and ignore other information (subject ID, time, XYZ coordinates).
+Use a Gaussian RBF kernel, i.e., k(x,x′)=exp(−∥x−x′∥/2σ2).
+Set kernel width σ=100.
+Set the hinge weight C=50 in the objective wTw/2+C∑ih(yixi⋅w).
+Fit three binary 1-vs-1 classifiers (one for each pair of classes).
+When testing, use majority vote among the three classifiers: e.g., if the 0-1 classifier says 1, the 0-3 classifier says 3, and the 1-3 classifier says 1, predict 1.
+This classifier is definitely not optimal, but it is a good starting place to make sure you understand the data and the problem -- we are looking forward to seeing how much you are all able to beat this baseline.
+ 
+Some issues to think about:
+you can try other classifiers, other methods of reducing multi-class to binary, cost-sensitive classifiers to handle class imbalance, other kernels, feature engineering, other parameter values, different regularizations, different normalizations, ...
+make sure to use techniques like cross-validation, holdout, or bootstrap within the training data set to avoid fooling yourself about the accuracy of your classifier
+ 
+See @444 for information about what was wrong with the original data and what we did to fix it.
+ 
+Submission and grading: Project part 1 is due on November 24.  
+ 
+After you learn a classifier using the training data in Train.mat, you can predict labels for the testing data in Test.mat.  You will be graded on the accuracy of these predictions. But beware: behind the scenes we have randomly split the examples in Test.mat into two equal-size disjoint subsets, the holdout set and the final test set.  You can test as often as you like against the holdout set: each time you submit, Autolab will display your accuracy on the holdout set, and keep a leaderboard of the best accuracies achieved so far.  But, submitting too often will risk overfitting.  So, the majority of your grade will be based on the final test set: Autolab will simply store your prediction on these examples.  We will grade you only once on this set, after the final submission deadline, using your last submission.  
+ 
+It is your job to balance the risk of overfitting against the information you gain by submitting your predictions to Autolab.  For example, it is probably wise to use cross-validation within the training set (or another similar strategy) to evaluate the accuracy of your learned classifier before submitting any predictions to Autolab.
+ 
+To submit predictions to Autolab, you should prepare a "prediction.csv" file that contains a 1001×3 matrix Y^.  That is, it should look something like this:
+ 
+0.2, 0.6, 0.2
+1, 0, 0
+0, 0.9, 0.1
+... (for 1001 total rows)
+Make sure its name is "prediction.csv", otherwise autolab would not be able to locate your submission.
+ 
+All entries of Y^ij should be nonnegative, and each row of Y^ should sum to 1; submissions that do not satisfy these properties will get an accuracy of 0. The entry Y^ij is your prediction for the probability that example i is of class j, where the index j={1,2,3} corresponds to the class labels {0,1,3} from the training set, in that order.  
+ 
+Your accuracy will be the fraction of the total probability that you assign to the correct labels: that is, if example i has true class j, your accuracy for example i will be your submitted value for Y^i,j (and your accuracy on a set of examples will be your average accuracy over these examples).
+ 
+You will get two separate sub-grades based on the holdout and final test sets:
+The holdout grade is worth 40% of your score, and will be displayed immediately when you submit.  This holdout grade determines your place on the leaderboard.
+The final test grade is worth 60% of your score.  We will compute this grade after the submission deadline.  To prevent overfitting, the final test grade will not be displayed until after the submission deadline.
+ 
+For each of these sub-grades, you will get:
+20% for submitting a valid .csv file of predictions.
+An additional 30% (i.e., 50% total) for achieving an accuracy of at least 0.500 — you should be able to do so by following the suggestions above.
+The remaining 50% of your grade scales linearly with your accuracy between accuracies of 0.500 and 0.667: if you manage to achieve accuracy 0.667 you will get 100% credit.  (Remember, we are not sure whether this is possible: this is real data and we don’t know the best achievable accuracy.  If nobody achieves accuracy 0.667, we will scale all grades so that the top accuracy gets 100%.)
+ 
+Finally, on the final test set only, we will assign extra credit for high accuracy: the top 15% of submissions will get extra credit (with the most extra credit going to the highest ranking submissions), as will any submissions that achieve accuracy over 0.667 on the test set. 
+
+
+---------------------------------------------------------------------------------------
+Here is the data for the first part of the project: project1data.mat, project1data_labels.mat
+ 
+You should be able to load the data into Matlab or Octave with "load project1data".  (There are also mat-file loaders for SciPy and other tools/environments.)  You'll see two variables, X and Y.  Each row of X is an example: 5903 voxels taken from a single fMRI scan.  The scans were processed as discussed in class on Monday: e.g., warping to a common brain shape and selecting voxels from brain regions that are anticipated to be relevant.  Each element of Y is an integer in 1..5, corresponding to a trial type and outcome.  We'll post the mapping to human-readable labels here soon.
+ 
+[AS edit: Here is the mapping of labels to human-readable labels.] The task the subjects are doing is to press a button when a moving bar reaches a line, but not to press the button if they get an early/late stop signal.  The fMRI scan is taken approximately 6 seconds after the time button would have been pressed, to account for the delay between neural activity and the BOLD signal that the fMRI measures.
+    1) Early Stop: Successful stop to an early stop signal.
+    2) Late Stop: Successful stop to a late stop signal.
+    3) Correct Go: Correct button press (within ~500ms) on a trial with no stop signal.
+    4) Incorrect Go: Button press on a trial with stop signal.
+    5) False Alarm: No button press on a trial with no stop signal.
+ 
+Your task for project part 1 is to build the best possible classifier to predict Y from X.  We'll evaluate your classifier against held-out data.  Your score will depend on your classifier's accuracy: anything over a threshold will get a base amount of credit, and then accuracies above the threshold will gain additional credit.  You may feel free to use any tools you like: existing libraries or ones you implement yourself, or anything in between.
+ 
+As a hint, you will get decent performance with a support vector machine using a Gaussian kernel of radius 3×105 and a hinge weight of C=10, using 1-vs-rest and voting.  This classifier is not optimal, but it is a good starting place to make sure you understand the data and the problem -- we are looking forward to seeing how much you are all able to beat this baseline.
+ 
+Some issues to think about:
+you can try other classifiers, other methods of reducing multi-class to binary, other kernels, feature engineering, other parameter values, different regularizations, different normalizations, ...
+make sure to use techniques like cross-validation, holdout, or bootstrap within the training data set to avoid fooling yourself about the accuracy of your classifier
+ 
+Project part 1 will be due Wednesday 11/11 (a bit over two weeks).  We'll post more information soon about how to hand in your work.
+ 
+As a reminder, you are allowed to work in teams of up to 2 people -- see @5 for team finding.
+ 
+So, fire up your Matlab/Octave instances, and see what you can do!
+ 

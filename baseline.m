@@ -7,7 +7,7 @@ load('Test.mat');
 %% trainning phase XTrain YTrain => models
 models = cell(3,1);
 kernelScale = 100;
-boxconstraint = 50;
+boxconstraint = 90;
 % 0 1
 models{1} = fitcsvm([Xtrain(Ytrain==0,:);Xtrain(Ytrain==1,:)],...
                     [Ytrain(Ytrain==0);Ytrain(Ytrain==1)],'KernelFunction','rbf',...
@@ -35,3 +35,11 @@ allScore = [scoreSum0, scoreSum1, scoreSum3];
 YPredict(YPredict==1) = 0;
 YPredict(YPredict==2) = 1;
 YPredict(YPredict==3) = 3;
+
+%% Cross Validation
+class1_loss = kfoldLoss(crossval(models{1}))
+class2_loss = kfoldLoss(crossval(models{2}))
+class3_loss = kfoldLoss(crossval(models{3}))
+
+% write to prediction.csv for turnin
+%csvwrite('prediction.csv', YPredict);
