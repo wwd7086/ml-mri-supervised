@@ -4,10 +4,11 @@ clear;
 load('Train.mat');
 load('Test.mat');
 
+Xtrain = normr(Xtrain);
 %% trainning phase XTrain YTrain => models
 models = cell(3,1);
-kernelScale = 100;
-boxconstraint = 50;
+kernelScale = 140;
+boxconstraint = 54;
 % 0 1
 models{1} = fitcsvm([Xtrain(Ytrain==0,:);Xtrain(Ytrain==1,:)],...
                     [Ytrain(Ytrain==0);Ytrain(Ytrain==1)],'KernelFunction','rbf',...
