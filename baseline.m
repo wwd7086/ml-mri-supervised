@@ -7,7 +7,7 @@ load('Test.mat');
 %% trainning phase XTrain YTrain => models
 models = cell(3,1);
 kernelScale = 100;
-boxconstraint = 90;
+boxconstraint = 50;
 % 0 1
 models{1} = fitcsvm([Xtrain(Ytrain==0,:);Xtrain(Ytrain==1,:)],...
                     [Ytrain(Ytrain==0);Ytrain(Ytrain==1)],'KernelFunction','rbf',...
