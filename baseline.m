@@ -31,15 +31,26 @@ scoreSum1 = score1(:,2) + score3(:,1);
 scoreSum3 = score2(:,2) + score3(:,2);
 
 allScore = [scoreSum0, scoreSum1, scoreSum3];
+% normalize y predict
+%minall = min(min(allScore));
+%allScore = allScore - minall;
+%allScore = bsxfun(@rdivide, allScore, sum(allScore,2));
+%round(allScore,4);
+%allScore(:,3) = 1 - sum(allScore(:,1:2),2);
 [~,YPredict] = max(allScore,[],2);
-YPredict(YPredict==1) = 0;
-YPredict(YPredict==2) = 1;
-YPredict(YPredict==3) = 3;
+%YPredict(YPredict==1) = 0;
+%YPredict(YPredict==2) = 1;
+%YPredict(YPredict==3) = 3;
+
+writeScore = zeros(size(allScore));
+for i=1:size(YPredict,1)
+    writeScore(i,YPredict(i)) = 1;
+end
 
 %% Cross Validation
-class1_loss = kfoldLoss(crossval(models{1}))
-class2_loss = kfoldLoss(crossval(models{2}))
-class3_loss = kfoldLoss(crossval(models{3}))
+%class1_loss = kfoldLoss(crossval(models{1}))
+%class2_loss = kfoldLoss(crossval(models{2}))
+%class3_loss = kfoldLoss(crossval(models{3}))
 
 % write to prediction.csv for turnin
-%csvwrite('prediction.csv', YPredict);
+csvwrite('prediction.csv', writeScore);
