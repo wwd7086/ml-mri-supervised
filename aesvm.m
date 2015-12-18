@@ -56,8 +56,8 @@ save('TrainR.mat','XtrainR','XtestR');
 
 %% train and cross validate on svm
 outlier_frac = 0.15;
-kernel_scale = 56;
-box_constraint = 40;
-shrinkage = 2400;
+kernel_scale = 45;
+box_constraint = 30;
+shrinkage = 3000;
 err_rate = cross_validate_baseline_all( kernel_scale, box_constraint, ...
     XtrainR, Ytrain, outlier_frac, shrinkage)
