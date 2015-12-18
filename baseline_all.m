@@ -13,9 +13,9 @@ Xtrain = mynormalize(Xtrain);
 Xtest = mynormalize(Xtest);
 
 outlier_frac = 0.15;
-kernel_scale = 57;
-box_constraint = 46.5;
-shrinkage = 2000;
+kernel_scale = 56;
+box_constraint = 40;
+shrinkage = 2400;
 err_rate = cross_validate_baseline_all( kernel_scale, box_constraint, ...
     Xtrain, Ytrain, outlier_frac, shrinkage)
 
