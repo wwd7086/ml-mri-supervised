@@ -12,10 +12,10 @@ load('Test.mat');
 Xtrain = mynormalize(Xtrain);
 Xtest = mynormalize(Xtest);
 
-outlier_frac = 0.15;
-kernel_scale = 56;
-box_constraint = 40;
-shrinkage = 2400;
+outlier_frac = 0.15;  % can't use this with shrinkage at same time
+kernel_scale = 45;
+box_constraint = 30;
+shrinkage = 3000;
 err_rate = cross_validate_baseline_all( kernel_scale, box_constraint, ...
     Xtrain, Ytrain, outlier_frac, shrinkage)
 
@@ -28,24 +28,27 @@ cur_label(train_label==0) = 1;
 cv_models{1} = fitcsvm(...
     train_data, cur_label,...
     'KernelFunction', 'rbf', 'KernelScale', kernel_scale,...
-    'BoxConstraint', box_constraint, ...'OutlierFraction', outlier_frac); 
-    'Shrinkage', shrinkage, 'GapTolerance', 1e-2);
+    'BoxConstraint', box_constraint, ...'OutlierFraction', outlier_frac);    
+    'Shrinkage', shrinkage, 'GapTolerance', 1e-3, 'Solver', 'ISDA');
+    %'Shrinkage', shrinkage, 'Solver', 'ISDA');
 % 1 vs all
 cur_label = zeros(size(train_label));
 cur_label(train_label==1) = 1;
 cv_models{2} = fitcsvm(...
     train_data, cur_label,...
     'KernelFunction', 'rbf', 'KernelScale', kernel_scale,...
-    'BoxConstraint', box_constraint, ...'OutlierFraction', outlier_frac);
-    'Shrinkage', shrinkage, 'GapTolerance', 1e-2);
+    'BoxConstraint', box_constraint, ...'OutlierFraction', outlier_frac);    
+    'Shrinkage', shrinkage, 'GapTolerance', 1e-3, 'Solver', 'ISDA');
+    %'Shrinkage', shrinkage, 'Solver', 'ISDA');
 % 3 vs all
 cur_label = zeros(size(train_label));
 cur_label(train_label==3) = 1;
 cv_models{3} = fitcsvm(...
     train_data, cur_label,...
     'KernelFunction', 'rbf', 'KernelScale', kernel_scale,...
-    'BoxConstraint', box_constraint, ...'OutlierFraction', outlier_frac);
-    'Shrinkage', shrinkage, 'GapTolerance', 1e-2);
+    'BoxConstraint', box_constraint, ...'OutlierFraction', outlier_frac);    
+    'Shrinkage', shrinkage, 'GapTolerance', 1e-3, 'Solver', 'ISDA');
+    %'Shrinkage', shrinkage, 'Solver', 'ISDA');
 
 [~, cv_score1] = predict(cv_models{1}, Xtest);
 [~, cv_score2] = predict(cv_models{2}, Xtest);
