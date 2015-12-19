@@ -7,8 +7,11 @@ load Test.mat;
 addpath(genpath('DeepLearnToolbox'));
 
 %% preprocess the data
-Xtrain = mynormalize(Xtrain);
-Xtest = mynormalize(Xtest);
+Xall = [Xtrain;Xtest];
+Xbias = min(Xall);
+Xall = bsxfun(@minus,Xall,Xbias);
+Xscale = max(Xall)-min(Xall);
+Xall = bsxfun(@rdivide,Xall,Xscale);
 
 %%  Dimensin reduction using autoencoder
 rand('state',0);
@@ -17,14 +20,14 @@ sae = saesetup(aesize);
 % layers
 for i=1:numel(aesize)-1
     sae.ae{i}.activation_function       = 'sigm';
-    sae.ae{i}.learningRate              = 0.05;
+    sae.ae{i}.learningRate              = 0.005;
     sae.ae{i}.inputZeroMaskedFraction   = 0;
 end
 % optimize
 opts.numepochs =  20;
 opts.batchsize = 100;
-Xall = [Xtrain;Xtest];
 sae = saetrain(sae, Xall(1:1500,:), opts);
+save('sae.mat','sae');
 %load sae.mat;
 
 % global optimize
@@ -34,10 +37,11 @@ for i=1:numel(aesize)-1
     nng.W{numel(aesize)+2-i} = sae.ae{i}.W{2};
 end
 nng.activation_function = 'sigm';
-nng.learningRate = 0.05;
-opts.numepochs =  100;
+%load nng.mat;
+nng.learningRate = 0.005;
+opts.numepochs =  200;
 nng = nntrain(nng, Xall(1:1500,:), Xall(1:1500,:), opts);
-save('nng.mat','nng');
+save('nng.mat','nng','Xscale','Xbias');
 
 % Use the SDAE to initialize a FFNN
 nn = nnsetup(aesize);
@@ -53,10 +57,11 @@ XtrainR = nn.a{end};
 nn = nnff(nn, Xtest, zeros(size(Xtest,1), nn.size(end)));
 XtestR = nn.a{end};
 save('TrainR.mat','XtrainR','XtestR');
+%load TrainR.mat;
 
 %% train and cross validate on svm
-outlier_frac = 0.15;
-kernel_scale = 45;
+outlier_frac = 0.05;
+kernel_scale = 15;
 box_constraint = 30;
 shrinkage = 3000;
 err_rate = cross_validate_baseline_all( kernel_scale, box_constraint, ...
